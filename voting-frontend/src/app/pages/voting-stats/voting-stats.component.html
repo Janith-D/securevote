@@ -1,0 +1,53 @@
+<div class="stats-container">
+  <mat-card class="stat-card votes">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>how_to_vote</mat-icon>
+        Total Votes
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="stat-value">{{ totalVotes }}</div>
+      <div class="stat-label">+12% from last hour</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="stat-card candidates">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>people</mat-icon>
+        Candidates
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="stat-value">{{ totalCandidates }}</div>
+      <div class="stat-label">Active in this election</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="stat-card time">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>schedule</mat-icon>
+        Time Left
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="stat-value">{{timeRemaining}}</div>
+      <div class="stat-label">Until voting closes</div>
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="stat-card security">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>security</mat-icon>
+        Security
+      </mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="stat-value">{{ security }}</div>
+      <div class="stat-label">Secure & verified</div>
+    </mat-card-content>
+  </mat-card>
+</div>

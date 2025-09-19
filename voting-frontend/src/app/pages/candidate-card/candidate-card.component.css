@@ -1,0 +1,47 @@
+.candidate-card {
+  max-width: 300px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 8px;
+}
+
+.candidate-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.candidate-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-size: cover;
+  background-position: center;
+  margin-right: 10px;
+  border: 2px solid #e0e0e0;
+}
+
+.candidate-bio {
+  font-size: 0.9em;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 15px;
+  max-height: 60px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vote-progress {
+  margin-bottom: 15px;
+}
+
+.vote-count {
+  text-align: center;
+  font-weight: bold;
+  color: #1976d2;
+  margin-top: 5px;
+  font-size: 0.9em;
+}
+
+.candidate-card button[disabled] {
+  background-color: #ccc;
+  color: #fff;
+}

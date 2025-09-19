@@ -1,0 +1,17 @@
+<div class="login-container">
+  <h2>Login with Face Verification</h2>
+  <form #loginForm="ngForm" (ngSubmit)="onLogin()">
+    <mat-form-field appearance="fill">
+      <mat-label>Wallet Address</mat-label>
+      <input matInput name="walletAddress" [(ngModel)]="walletAddress" required>
+    </mat-form-field>
+
+    <app-face-capture (capture)="onFaceCapture($event)"></app-face-capture>
+    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!imageCaptured || !walletAddress.trim() || isLoggingIn">
+      {{ isLoggingIn ? 'Verifying...' : 'Login' }}
+    </button>
+  </form>
+</div>

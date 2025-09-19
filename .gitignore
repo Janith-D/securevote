@@ -1,0 +1,8 @@
+/ai/.venv/ 
+/ai/src/__pycache__/
+/ai/*.pyc
+/ai/data/
+/ai/*.log
+
+/blockchain/.env
+/blockchain/node_modules/

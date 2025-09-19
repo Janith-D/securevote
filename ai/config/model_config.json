@@ -1,0 +1,7 @@
+{
+  "image_size": [640, 480],
+  "face_size": [224, 224],
+  "similarity_threshold": 0.75,
+  "min_face_size": 30,
+  "min_blur_score": 50
+}

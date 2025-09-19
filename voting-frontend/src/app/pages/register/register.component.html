@@ -1,0 +1,34 @@
+<div class="register-container">
+  <h2>Register</h2>
+  <form #registerForm="ngForm" (ngSubmit)="onRegister()">
+    <mat-form-field appearance="fill">
+      <mat-label>Username</mat-label>
+      <input matInput name="username" [(ngModel)]="data.username" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput name="email" [(ngModel)]="data.email" required type="email">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Wallet Address</mat-label>
+      <input matInput name="walletAddress" [(ngModel)]="data.walletAddress" required>
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>First Name</mat-label>
+      <input matInput name="firstName" [(ngModel)]="data.firstName">
+    </mat-form-field>
+    <mat-form-field>
+      <mat-label>Last Name</mat-label>
+      <input matInput name="lastName" [(ngModel)]="data.lastName">
+    </mat-form-field>
+
+
+    <app-face-capture (capture)="onFaceCapture($event)"></app-face-capture>
+    <p *ngIf="successMessage" class="success-message">{{ successMessage }}</p>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="!imageCaptured || !registerForm.valid">
+      Register
+    </button>
+  </form>
+</div>

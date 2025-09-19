@@ -1,0 +1,28 @@
+<mat-card class="candidate-card">
+  <mat-card-header>
+    <div mat-card-avatar class="candidate-avatar" [style.background-image]="'url(' + (candidate.imageUrl || 'assets/default-avatar.png') + ')'"></div>
+    <mat-card-title>{{ candidate.name }}</mat-card-title>
+    <mat-card-subtitle>{{ candidate.party }}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <p class="candidate-bio">{{ candidate.bio }}</p>
+    <div class="vote-progress">
+      <mat-progress-bar
+        [value]="(candidate.votes / totalVotes) * 100 || 0"
+        mode="determinate"
+        color="primary">
+      </mat-progress-bar>
+      <div class="vote-count">{{ candidate.votes }} votes</div>
+    </div>
+  </mat-card-content>
+  <mat-card-actions align="end">
+    <button
+      mat-raised-button
+      color="primary"
+      (click)="onVote()"
+      [disabled]="!candidate.isActive"
+      [matTooltip]="!candidate.isActive ? 'This candidate is not active for voting' : ''">
+      {{ candidate.isActive ? 'Vote' : 'Not Active' }}
+    </button>
+  </mat-card-actions>
+</mat-card>

@@ -1,0 +1,16 @@
+<mat-card class="face-card">
+  <mat-card-header>
+    <mat-card-title>Face Capture</mat-card-title>
+    <mat-card-subtitle>Enable your camera and capture your face</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <video id="videoElement" autoplay playsinline class="video-preview"></video>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-raised-button color="primary" (click)="captureFace()">
+      Capture Face
+    </button>
+  </mat-card-actions>
+</mat-card>

@@ -1,0 +1,45 @@
+<div class="dashboard-container">
+  <div class="dashboard-inner">
+    <!-- Header -->
+    <div class="dashboard-header">
+      <h1 class="dashboard-title">SecureVote Dashboard</h1>
+      <p class="dashboard-subtitle">
+        Cast your vote securely and transparently. Every vote counts and is verified through our secure system.
+      </p>
+    </div>
+
+    <!-- Voting stats -->
+    <app-voting-stats
+      [totalVotes]="totalVotes"
+      [totalCandidates]="totalCandidates"
+      [timeRemaining]="timeRemaining"
+      [security]="security">
+    </app-voting-stats>
+
+    <!-- Active Candidates -->
+    <div class="candidates-section">
+      <h2 class="candidates-title">Active Candidates</h2>
+      <div class="candidates-grid">
+        <app-candidate-card
+          *ngFor="let candidate of candidates"
+          [candidate]="candidate"
+          [totalVotes]="totalVotes"
+          (vote)="handleVote($event)">
+        </app-candidate-card>
+      </div>
+
+
+    <!-- Face Verification Modal -->
+    <div class="vote-modal" *ngIf="showFaceCapture">
+      <h3>Verify Your Identity</h3>
+      <app-face-capture (capture)="onFaceCapture($event)"></app-face-capture>
+      <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <button mat-button (click)="cancelVote()">Cancel</button>
+    </div>
+
+    <!-- Footer -->
+    <div class="dashboard-footer">
+      <p>Powered by SecureVote • All votes are encrypted and verified</p>
+    </div>
+  </div>
+</div>
