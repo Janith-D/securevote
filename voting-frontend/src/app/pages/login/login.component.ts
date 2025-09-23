@@ -66,7 +66,13 @@ export class LoginComponent {
         // Store user data in localStorage
         localStorage.setItem('walletAddress', this.walletAddress.trim());
         localStorage.setItem('role', res.role || 'VOTER'); // Access res.role directly
-        setTimeout(() => this.router.navigate(['/dashboard']), 1000); // Redirect to dashboard
+        //role base navigation
+        const role = res.role.toUpperCase();
+        if(role === 'ADMIN'){
+          setTimeout(() => this.router.navigate(['/admin-dashboard']),1000);
+        }else {
+          setTimeout(() => this.router.navigate(['/dashboard']), 1000); // Redirect to dashboard
+        }
       },
       error: (err) => {
         this.isLoggingIn = false;

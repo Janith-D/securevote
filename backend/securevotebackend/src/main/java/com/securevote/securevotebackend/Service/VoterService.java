@@ -62,7 +62,7 @@ public class VoterService {
         user.setPassword("");
         user.setFirstName(registerRequestDto.getFirstName());
         user.setLastName(registerRequestDto.getLastName());
-        user.setRole(User.UserRole.VOTER);
+        user.setRole(registerRequestDto.getRole()!= null? registerRequestDto.getRole():User.UserRole.VOTER);
         user.setIsVerified(false);
         user.setIsFaceRegistered(false);
         user.setCreatedAt(LocalDateTime.now());
@@ -181,6 +181,12 @@ public class VoterService {
                 vote.getTransactionHash(),
                 "Vote retrieved"
         )).collect(Collectors.toList());
+    }
+    public List<UserResponseDto> getAllUsers(){
+        log.info("Fetching all users");
+        return userRepo.findAll().stream()
+                .map(this::mapToUserResponseDto)
+                .collect(Collectors.toList());
     }
 
 

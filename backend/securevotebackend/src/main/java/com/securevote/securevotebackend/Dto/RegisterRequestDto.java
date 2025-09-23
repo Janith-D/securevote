@@ -1,5 +1,6 @@
 package com.securevote.securevotebackend.Dto;
 
+import com.securevote.securevotebackend.Entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,4 +15,5 @@ public class RegisterRequestDto {
     private String firstName;
     private String lastName;
     private String walletAddress;
+    private User.UserRole role;
 }
