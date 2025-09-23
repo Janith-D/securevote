@@ -1,5 +1,6 @@
 package com.securevote.securevotebackend.Service;
 
+import com.securevote.securevotebackend.Dto.ElectionResponseDto;
 import com.securevote.securevotebackend.Entity.Election;
 import com.securevote.securevotebackend.Entity.User;
 import com.securevote.securevotebackend.Repo.ElectionRepo;
@@ -10,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ElectionService {
@@ -43,4 +46,10 @@ public class ElectionService {
         log.info("fetching election by id: {}",id);
         return electionRepo.findById(id);
     }
+    public List<Election> getAllElection(){
+        log.info("Fetching all election");
+        return electionRepo.findAll();
+
+    }
+
 }

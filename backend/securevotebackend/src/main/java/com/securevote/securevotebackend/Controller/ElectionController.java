@@ -6,13 +6,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/elections")
 public class ElectionController {
     @Autowired
     private ElectionService electionService;
 
-    @PostMapping
+    @PostMapping("/createElection")
     public ResponseEntity<Election> createElection(@RequestBody Election election) {
         try {
             Election savedElection = electionService.saveElection(election);
@@ -27,5 +29,10 @@ public class ElectionController {
         return electionService.findById(id)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
+    }
+    @GetMapping("/getAllElection")
+    public ResponseEntity<List<Election>> getAllElection(){
+        List<Election> elections = electionService.getAllElection();
+        return ResponseEntity.ok(elections);
     }
 }

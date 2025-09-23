@@ -26,6 +26,7 @@ export class DashboardComponent implements OnInit {
   selectedCandidateId: number | null = null;
   showFaceCapture: boolean = false;
   errorMessage: string = '';
+  private voteImage:File | null = null;
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -37,6 +38,7 @@ export class DashboardComponent implements OnInit {
 
     this.loadCandidates();
   }
+
 
   loadCandidates(): void {
     this.apiService.getCandidates().subscribe({
@@ -102,6 +104,7 @@ export class DashboardComponent implements OnInit {
       return;
     }
     const file = this.base64ToFile(base64Image,`vote-face-${Date.now()}.png`);
+    this.voteImage = file;
     this.apiService.verifyForLogin(this.walletAddress!,file).subscribe({
       next: (isVerified) => {
         if(isVerified){
@@ -109,11 +112,13 @@ export class DashboardComponent implements OnInit {
         }else{
           this.errorMessage = 'Face verification failed.Please try again or log in.';
           this.showFaceCapture = false;
+          this.voteImage = null;
         }
       },
       error: (err) => {
         this.errorMessage = 'Verification error: '+ (err.error?.message || 'Please try again');
         this.showFaceCapture = false;
+        this.voteImage = null;
       }
     });
   }
@@ -127,10 +132,12 @@ export class DashboardComponent implements OnInit {
         this.errorMessage = 'Vote cast successfully!.';
         this.loadCandidates();
         this.showFaceCapture = false;
+        this.voteImage = null;
       },
       error: (err) => {
         this.errorMessage = 'Voting failed: '+ (err.error?.message || 'Please try again');
         this.showFaceCapture = false;
+        this.voteImage = null;
       }
     });
   }
@@ -138,6 +145,7 @@ export class DashboardComponent implements OnInit {
     this.selectedCandidateId = null;
     this.showFaceCapture = false;
     this.errorMessage = '';
+    this.voteImage = null;
   }
   private base64ToFile(base64: string,fileName:string):File {
     const arr = base64.split(',');
@@ -151,6 +159,6 @@ export class DashboardComponent implements OnInit {
     return new File([u8arr],fileName,{type:mime});
   }
   get image() : File | null {
-    return null;
+    return this.voteImage;
   }
 }

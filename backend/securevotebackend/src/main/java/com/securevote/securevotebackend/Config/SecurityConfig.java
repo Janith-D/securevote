@@ -49,9 +49,9 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Apply CORS before security
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/voting/register", "/api/voting/user/**", "/api/voting/verify").permitAll()
-                        .requestMatchers("/api/elections", "/api/candidates/create","/api/candidates/getAllCandidates").permitAll()
+                        .requestMatchers("/api/elections", "/api/candidates/getAllCandidates").permitAll()
                         .requestMatchers("/api/voting/vote").hasAnyRole("VOTER", "CANDIDATE")
-                        .requestMatchers("/api/voting/results/**").hasRole("ADMIN")
+                        .requestMatchers("/api/voting/results/**","/api/candidates/create","/api/candidates/{id}","/api/elections/createElection","/api/elections/getAllElection").hasRole("ADMIN")
                         .requestMatchers("/api/voting/{walletAddress}").authenticated()
                         .anyRequest().denyAll()
                 )

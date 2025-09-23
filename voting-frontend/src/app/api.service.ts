@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
 import {catchError, map, Observable, throwError} from 'rxjs';
+import {CandidateRequestDto, ElectionRequestDto, ElectionResponseDto, UserResponseDto} from '../request.dto';
 
 
 @Injectable({
@@ -47,26 +48,22 @@ export class ApiService {
     formData.append('image', image);
     return this.http.post<any>(`${this.baseUrl}/voting/verify`, formData).pipe(
       map(response => {
-        if (response && response.role) {
-          return response; // { role: "voter", walletAddress: "..." }
+        if (response && response.status === 'success' && response.role) {
+          return {role: response.role.toUpperCase(),walletAddress: response.walletAddress || walletAddress};
         }
         return { role: 'VOTER', walletAddress }; // Fallback
       }),
       catchError(this.handleError)
     );
   }
-  castVote(walletAddress: string, candidateId: number,image: File): Observable<any> {
+// api.service.ts
+  castVote(walletAddress: string, candidateId: number, file: File): Observable<any> {
     const formData = new FormData();
-    formData.append('walletAddress',walletAddress);
-    formData.append('candidateId',candidateId.toString());
-    formData.append('image', image);
-    return this.http.post<any>(`${this.baseUrl}/voting/castVote`, formData).pipe(
-      map(response => {
-        if(response && response.status === 'success'){
-          return response;
-        }
-        throw new Error('Voting failed');
-      }),
+    formData.append('candidateId', candidateId.toString());
+    formData.append('image', file);
+    return this.http.post<any>(`${this.baseUrl}/voting/vote`, formData, {
+      headers: { 'X-Wallet-Address': walletAddress }
+    }).pipe(
       catchError(this.handleError)
     );
   }
@@ -87,6 +84,44 @@ export class ApiService {
         }
         return [];
       }),
+      catchError(this.handleError)
+    );
+  }
+  createCandidate(candidate: CandidateRequestDto): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/candidates/create`, candidate,{
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+  createElection(election: ElectionRequestDto): Observable<any> {
+    return this.http.post<any>(`${this.baseUrl}/elections/createElection`,election,{
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+  getElection(): Observable<any[]> {
+    return this.http.get<any>(`${this.baseUrl}/elections/getAllElection`,{
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+    }).pipe(
+      map(response => {
+        return Array.isArray(response)? response: (response.election || []);
+      }),
+      catchError(this.handleError)
+    );
+  }
+  getUser(walletAddress:string): Observable<UserResponseDto> {
+    return this.http.get<any>(`${this.baseUrl}/voting/user/${walletAddress}}`,{
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+  getAllUsers(): Observable<UserResponseDto[]>{
+    return this.http.get<any>(`${this.baseUrl}/voting/getAllUsers`,{
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+    }).pipe(
       catchError(this.handleError)
     );
   }

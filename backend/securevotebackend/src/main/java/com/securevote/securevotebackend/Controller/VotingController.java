@@ -4,6 +4,8 @@ import com.securevote.securevotebackend.Dto.RegisterRequestDto;
 import com.securevote.securevotebackend.Dto.UserResponseDto;
 import com.securevote.securevotebackend.Dto.VoteRequestDto;
 import com.securevote.securevotebackend.Dto.VoteResponseDto;
+import com.securevote.securevotebackend.Entity.User;
+import com.securevote.securevotebackend.Repo.UserRepo;
 import com.securevote.securevotebackend.Service.CandidateService;
 import com.securevote.securevotebackend.Service.FaceRecognitionService;
 import com.securevote.securevotebackend.Service.VoterService;
@@ -21,6 +23,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/voting")
@@ -34,6 +37,9 @@ public class VotingController {
 
     @Autowired
     private CandidateService candidateService;
+
+    @Autowired
+    private UserRepo userRepo;
 
     /**
      * Registers a new voter with face enrollment.
@@ -68,7 +74,7 @@ public class VotingController {
      */
     @PostMapping("/vote")
     public ResponseEntity<Map<String, Object>> castVote(
-            @RequestParam("walletAddress") String walletAddress,
+            @RequestHeader("X-Wallet-Address") String walletAddress,
             @RequestParam("candidateId") Long candidateId,
             @RequestParam("image") MultipartFile image)
             throws Exception {
@@ -101,8 +107,16 @@ public class VotingController {
         try {
             Map<String, Object> result = faceRecognitionService.verifyVoter(walletAddress, imageFile);
             if (result != null) {
-                result.put("status", "success");
-                return ResponseEntity.ok(result);
+                Optional<User> user = userRepo.findByWalletAddress(walletAddress);
+                if(user.isPresent()){
+                    result.put("status","success");
+                    result.put("role",user.get().getRole().name());
+                    result.put("walletAddress",walletAddress);
+                    return ResponseEntity.ok(result);
+                }else {
+                    return ResponseEntity.ok(Map.of("status","failed","message","user not found"));
+                }
+
             } else {
                 return ResponseEntity.ok(Map.of("status", "failed", "message", "Verification failed"));
             }
@@ -150,6 +164,11 @@ public class VotingController {
             response.put("message", "User not found");
         }
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/getAllUsers")
+    public ResponseEntity<List<UserResponseDto>> getAllUsers(){
+        List<UserResponseDto> users = voterService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
     @GetMapping("/{walletAddress}")
     public ResponseEntity<Map<String,Object>> getVotes(@PathVariable String walletAddress) {
