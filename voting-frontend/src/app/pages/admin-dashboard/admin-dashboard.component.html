@@ -1,129 +1,177 @@
-<!-- admin-dashboard.component.html -->
-<div class="container">
-  <h2>Admin Dashboard</h2>
-  <div *ngIf="errorMessage" class="error">{{errorMessage}}</div>
-  <div *ngIf="successMessage" class="success">{{successMessage}}</div>
+<!-- Create Candidate Form -->
+<mat-card class="action-card" *ngIf="showCandidateForm">
+  <h3>Create Candidate</h3>
+  <form [formGroup]="candidateForm" (ngSubmit)="createCandidate()">
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Name" formControlName="name" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Bio" formControlName="bio">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Image URL" formControlName="imageUrl">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Party" formControlName="party">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Election</mat-label>
+      <mat-select formControlName="electionId" required>
+        <mat-option *ngFor="let election of elections" [value]="election.id">
+          {{ election.title }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!candidateForm.valid">Create Candidate</button>
+    <button mat-button (click)="toggleCandidateForm()">Cancel</button>
+  </form>
+</mat-card>
 
-  <!-- Header Stats -->
-  <div class="stats-grid">
-    <mat-card class="stat-card">
-      <h3>Total Users</h3>
-      <p>{{ users.length }}</p>
-    </mat-card>
-    <mat-card class="stat-card">
-      <h3>Total Candidates</h3>
-      <p>{{ candidates.length }}</p>
-    </mat-card>
-    <mat-card class="stat-card">
-      <h3>Total Elections</h3>
-      <p>{{ elections.length }}</p>
-    </mat-card>
+<!-- Create Election Form -->
+<mat-card class="action-card" *ngIf="showElectionForm">
+  <h3>Create Election</h3>
+  <form [formGroup]="electionForm" (ngSubmit)="createElection()">
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Title" formControlName="title" required>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Description" formControlName="description">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput [matDatepicker]="startPicker" placeholder="Start Time" formControlName="startTime" required>
+      <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+      <mat-datepicker #startPicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput [matDatepicker]="endPicker" placeholder="End Time" formControlName="endTime" required>
+      <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+      <mat-datepicker #endPicker></mat-datepicker>
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="Contract Address" formControlName="contractAddress">
+    </mat-form-field>
+    <mat-form-field appearance="fill">
+      <mat-label>Created By</mat-label>
+      <mat-select formControlName="createdBy" required>
+        <mat-option *ngFor="let user of users" [value]="user.id">
+          {{ user.username }} ({{ user.walletAddress }})
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+    <button mat-raised-button color="primary" type="submit" [disabled]="!electionForm.valid">Create Election</button>
+    <button mat-button (click)="toggleElectionForm()">Cancel</button>
+  </form>
+</mat-card>
+
+<!-- Toggle Buttons -->
+<button mat-button (click)="toggleCandidateForm()" *ngIf="!showCandidateForm">Add Candidate</button>
+<button mat-button (click)="toggleElectionForm()" *ngIf="!showElectionForm">Add Election</button>
+
+<!-- User Table -->
+<mat-card class="data-card">
+  <h3>Users</h3>
+  <table mat-table [dataSource]="users" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let user">{{ user.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="username">
+      <th mat-header-cell *matHeaderCellDef>Username</th>
+      <td mat-cell *matCellDef="let user">{{ user.username }}</td>
+    </ng-container>
+    <ng-container matColumnDef="email">
+      <th mat-header-cell *matHeaderCellDef>Email</th>
+      <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+    </ng-container>
+    <ng-container matColumnDef="walletAddress">
+      <th mat-header-cell *matHeaderCellDef>Wallet Address</th>
+      <td mat-cell *matCellDef="let user">{{ user.walletAddress }}</td>
+    </ng-container>
+    <ng-container matColumnDef="role">
+      <th mat-header-cell *matHeaderCellDef>Role</th>
+      <td mat-cell *matCellDef="let user">{{ user.role }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsUser"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsUser;" (click)="showUserDetails(row)" class="clickable"></tr>
+  </table>
+  <div *ngIf="selectedUser" class="detail-card">
+    <p><strong>ID:</strong> {{ selectedUser.id }}</p>
+    <p><strong>Username:</strong> {{ selectedUser.username }}</p>
+    <p><strong>Email:</strong> {{ selectedUser.email }}</p>
+    <p><strong>Wallet Address:</strong> {{ selectedUser.walletAddress }}</p>
+    <p><strong>Role:</strong> {{ selectedUser.role }}</p>
   </div>
+</mat-card>
 
-  <!-- Create Candidate Card (Toggle Form) -->
-  <mat-card class="action-card" (click)="toggleCandidateForm()" [class.active]="showCandidateForm">
-    <h3>Create Candidate</h3>
-    <div *ngIf="showCandidateForm" class="form-content">
-      <form [formGroup]="candidateForm" (ngSubmit)="createCandidate()">
-        <mat-form-field appearance="fill"><input matInput placeholder="Name" formControlName="name" required></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Bio" formControlName="bio"></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Image URL" formControlName="imageUrl"></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Party" formControlName="party"></mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!candidateForm.valid">Create Candidate</button>
-      </form>
-    </div>
-  </mat-card>
+<!-- Candidate Table -->
+<mat-card class="data-card">
+  <h3>Candidates</h3>
+  <table mat-table [dataSource]="candidates" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let candidate">{{ candidate.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let candidate">{{ candidate.name }}</td>
+    </ng-container>
+    <ng-container matColumnDef="bio">
+      <th mat-header-cell *matHeaderCellDef>Bio</th>
+      <td mat-cell *matCellDef="let candidate">{{ candidate.bio }}</td>
+    </ng-container>
+    <ng-container matColumnDef="votes">
+      <th mat-header-cell *matHeaderCellDef>Votes</th>
+      <td mat-cell *matCellDef="let candidate">{{ candidate.votes }}</td>
+    </ng-container>
+    <ng-container matColumnDef="party">
+      <th mat-header-cell *matHeaderCellDef>Party</th>
+      <td mat-cell *matCellDef="let candidate">{{ candidate.party }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsCandidate;" (click)="showCandidateDetails(row)" class="clickable"></tr>
+  </table>
+  <div *ngIf="selectedCandidate" class="detail-card">
+    <p><strong>ID:</strong> {{ selectedCandidate.id }}</p>
+    <p><strong>Name:</strong> {{ selectedCandidate.name }}</p>
+    <p><strong>Bio:</strong> {{ selectedCandidate.bio }}</p>
+    <p><strong>Votes:</strong> {{ selectedCandidate.votes }}</p>
+    <p><strong>Party:</strong> {{ selectedCandidate.party }}</p>
+  </div>
+</mat-card>
 
-  <!-- Create Election Card (Toggle Form) -->
-  <mat-card class="action-card" (click)="toggleElectionForm()" [class.active]="showElectionForm">
-    <h3>Create Election</h3>
-    <div *ngIf="showElectionForm" class="form-content">
-      <form [formGroup]="electionForm" (ngSubmit)="createElection()">
-        <mat-form-field appearance="fill"><input matInput placeholder="Title" formControlName="title" required></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Description" formControlName="description"></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Start Time" formControlName="startTime" type="datetime-local" required></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="End Time" formControlName="endTime" type="datetime-local" required></mat-form-field>
-        <mat-form-field appearance="fill"><input matInput placeholder="Contract Address" formControlName="contractAddress"></mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!electionForm.valid">Create Election</button>
-      </form>
-    </div>
-  </mat-card>
-
-  <!-- Users Table with Details -->
-  <mat-card class="data-card">
-    <h3>All Users</h3>
-    <div class="table-container">
-      <table mat-table [dataSource]="users" *ngIf="users.length > 0" class="mat-elevation-z8">
-        <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let user" (click)="showUserDetails(user)" class="clickable">{{user.id}}</td></ng-container>
-        <ng-container matColumnDef="username"><th mat-header-cell *matHeaderCellDef>Username</th><td mat-cell *matCellDef="let user" (click)="showUserDetails(user)" class="clickable">{{user.username}}</td></ng-container>
-        <ng-container matColumnDef="email"><th mat-header-cell *matHeaderCellDef>Email</th><td mat-cell *matCellDef="let user" (click)="showUserDetails(user)" class="clickable">{{user.email}}</td></ng-container>
-        <ng-container matColumnDef="walletAddress"><th mat-header-cell *matHeaderCellDef>Wallet Address</th><td mat-cell *matCellDef="let user" (click)="showUserDetails(user)" class="clickable">{{user.walletAddress}}</td></ng-container>
-        <ng-container matColumnDef="role"><th mat-header-cell *matHeaderCellDef>Role</th><td mat-cell *matCellDef="let user" (click)="showUserDetails(user)" class="clickable">{{user.role}}</td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsUser"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsUser;"></tr>
-      </table>
-      <p *ngIf="users.length === 0">No users found.</p>
-    </div>
-    <mat-card *ngIf="selectedUser" class="detail-card">
-      <h4>User Details</h4>
-      <p><strong>ID:</strong> {{selectedUser.id}}</p>
-      <p><strong>Username:</strong> {{selectedUser.username}}</p>
-      <p><strong>Email:</strong> {{selectedUser.email}}</p>
-      <p><strong>Wallet Address:</strong> {{selectedUser.walletAddress}}</p>
-      <p><strong>Role:</strong> {{selectedUser.role}}</p>
-      <button mat-button (click)="selectedUser = null">Close</button>
-    </mat-card>
-  </mat-card>
-
-  <!-- Candidates Table with Details -->
-  <mat-card class="data-card">
-    <h3>All Candidates</h3>
-    <div class="table-container">
-      <table mat-table [dataSource]="candidates" *ngIf="candidates.length > 0" class="mat-elevation-z8">
-        <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let candidate" (click)="showCandidateDetails(candidate)" class="clickable">{{candidate.id}}</td></ng-container>
-        <ng-container matColumnDef="name"><th mat-header-cell *matHeaderCellDef>Name</th><td mat-cell *matCellDef="let candidate" (click)="showCandidateDetails(candidate)" class="clickable">{{candidate.name}}</td></ng-container>
-        <ng-container matColumnDef="bio"><th mat-header-cell *matHeaderCellDef>Bio</th><td mat-cell *matCellDef="let candidate" (click)="showCandidateDetails(candidate)" class="clickable">{{candidate.bio}}</td></ng-container>
-        <ng-container matColumnDef="votes"><th mat-header-cell *matHeaderCellDef>Votes</th><td mat-cell *matCellDef="let candidate" (click)="showCandidateDetails(candidate)" class="clickable">{{candidate.votes}}</td></ng-container>
-        <ng-container matColumnDef="party"><th mat-header-cell *matHeaderCellDef>Party</th><td mat-cell *matCellDef="let candidate" (click)="showCandidateDetails(candidate)" class="clickable">{{candidate.party}}</td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsCandidate"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsCandidate;"></tr>
-      </table>
-      <p *ngIf="candidates.length === 0">No candidates found.</p>
-    </div>
-    <mat-card *ngIf="selectedCandidate" class="detail-card">
-      <h4>Candidate Details</h4>
-      <p><strong>ID:</strong> {{selectedCandidate.id}}</p>
-      <p><strong>Name:</strong> {{selectedCandidate.name}}</p>
-      <p><strong>Bio:</strong> {{selectedCandidate.bio}}</p>
-      <p><strong>Votes:</strong> {{selectedCandidate.votes}}</p>
-      <p><strong>Party:</strong> {{selectedCandidate.party}}</p>
-      <button mat-button (click)="selectedCandidate = null">Close</button>
-    </mat-card>
-  </mat-card>
-
-  <!-- Elections Table with Details -->
-  <mat-card class="data-card">
-    <h3>All Elections</h3>
-    <div class="table-container">
-      <table mat-table [dataSource]="elections" *ngIf="elections.length > 0" class="mat-elevation-z8">
-        <ng-container matColumnDef="id"><th mat-header-cell *matHeaderCellDef>ID</th><td mat-cell *matCellDef="let election" (click)="showElectionDetails(election)" class="clickable">{{election.id}}</td></ng-container>
-        <ng-container matColumnDef="title"><th mat-header-cell *matHeaderCellDef>Title</th><td mat-cell *matCellDef="let election" (click)="showElectionDetails(election)" class="clickable">{{election.title}}</td></ng-container>
-        <ng-container matColumnDef="startTime"><th mat-header-cell *matHeaderCellDef>Start Time</th><td mat-cell *matCellDef="let election" (click)="showElectionDetails(election)" class="clickable">{{election.startTime}}</td></ng-container>
-        <ng-container matColumnDef="endTime"><th mat-header-cell *matHeaderCellDef>End Time</th><td mat-cell *matCellDef="let election" (click)="showElectionDetails(election)" class="clickable">{{election.endTime}}</td></ng-container>
-        <ng-container matColumnDef="contractAddress"><th mat-header-cell *matHeaderCellDef>Contract Address</th><td mat-cell *matCellDef="let election" (click)="showElectionDetails(election)" class="clickable">{{election.contractAddress}}</td></ng-container>
-        <tr mat-header-row *matHeaderRowDef="displayedColumnsElection"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumnsElection;"></tr>
-      </table>
-      <p *ngIf="elections.length === 0">No elections found.</p>
-    </div>
-    <mat-card *ngIf="selectedElection" class="detail-card">
-      <h4>Election Details</h4>
-      <p><strong>ID:</strong> {{selectedElection.id}}</p>
-      <p><strong>Title:</strong> {{selectedElection.title}}</p>
-      <p><strong>Start Time:</strong> {{selectedElection.startTime}}</p>
-      <p><strong>End Time:</strong> {{selectedElection.endTime}}</p>
-      <p><strong>Contract Address:</strong> {{selectedElection.contractAddress}}</p>
-      <button mat-button (click)="selectedElection = null">Close</button>
-    </mat-card>
-  </mat-card>
-</div>
+<!-- Election Table -->
+<mat-card class="data-card">
+  <h3>Elections</h3>
+  <table mat-table [dataSource]="elections" class="mat-elevation-z8">
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef>ID</th>
+      <td mat-cell *matCellDef="let election">{{ election.id }}</td>
+    </ng-container>
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <td mat-cell *matCellDef="let election">{{ election.title }}</td>
+    </ng-container>
+    <ng-container matColumnDef="startTime">
+      <th mat-header-cell *matHeaderCellDef>Start Time</th>
+      <td mat-cell *matCellDef="let election">{{ election.startTime | date }}</td>
+    </ng-container>
+    <ng-container matColumnDef="endTime">
+      <th mat-header-cell *matHeaderCellDef>End Time</th>
+      <td mat-cell *matCellDef="let election">{{ election.endTime | date }}</td>
+    </ng-container>
+    <ng-container matColumnDef="contractAddress">
+      <th mat-header-cell *matHeaderCellDef>Contract Address</th>
+      <td mat-cell *matCellDef="let election">{{ election.contractAddress }}</td>
+    </ng-container>
+    <tr mat-header-row *matHeaderRowDef="displayedColumnsElection"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumnsElection;" (click)="showElectionDetails(row)" class="clickable"></tr>
+  </table>
+  <div *ngIf="selectedElection" class="detail-card">
+    <p><strong>ID:</strong> {{ selectedElection.id }}</p>
+    <p><strong>Title:</strong> {{ selectedElection.title }}</p>
+    <p><strong>Description:</strong> {{ selectedElection.description }}</p>
+    <p><strong>Start Time:</strong> {{ selectedElection.startTime | date }}</p>
+    <p><strong>End Time:</strong> {{ selectedElection.endTime | date }}</p>
+    <p><strong>Contract Address:</strong> {{ selectedElection.contractAddress }}</p>
+  </div>
+</mat-card>

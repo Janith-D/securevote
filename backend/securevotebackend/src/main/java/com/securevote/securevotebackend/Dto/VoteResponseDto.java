@@ -12,10 +12,12 @@ public class VoteResponseDto {
     private boolean voted;
     private String transactionHash;
     private String message;
+    private Long electionId;
 
-    public VoteResponseDto(boolean voted, String transactionHash, String message) {
+    public VoteResponseDto(boolean voted, String transactionHash, String message, Long electionId) {
         this.voted = voted;
         this.transactionHash = transactionHash;
         this.message = message;
+        this.electionId = electionId;
     }
 }

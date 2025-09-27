@@ -6,6 +6,7 @@
       <p class="dashboard-subtitle">
         Cast your vote securely and transparently. Every vote counts and is verified through our secure system.
       </p>
+      <p *ngIf="errorMessage && !showFaceCapture" class="status-message">{{ errorMessage }}</p>
     </div>
 
     <!-- Voting stats -->
@@ -24,11 +25,10 @@
           *ngFor="let candidate of candidates"
           [candidate]="candidate"
           [totalVotes]="totalVotes"
-          (vote)="handleVote($event)">
+          (vote)="handleVote(candidate.id)">
         </app-candidate-card>
       </div>
     </div>
-
 
     <!-- Face Verification Modal -->
     <div class="vote-modal" *ngIf="showFaceCapture">

@@ -76,11 +76,13 @@ public class VotingController {
     public ResponseEntity<Map<String, Object>> castVote(
             @RequestHeader("X-Wallet-Address") String walletAddress,
             @RequestParam("candidateId") Long candidateId,
+            @RequestParam("electionId") Long electionId,
             @RequestParam("image") MultipartFile image)
             throws Exception {
         VoteRequestDto voteRequestDto = new VoteRequestDto();
         voteRequestDto.setWalletAddress(walletAddress);
         voteRequestDto.setCandidateId(candidateId);
+        voteRequestDto.setElectionId(electionId);
         //voteRequestDto.setImage(image); // Assuming VoteRequestDto has a setImage method
         VoteResponseDto voteResponse = voterService.castVote(voteRequestDto,image);
         log.info("Vote response : voted ={}, message={}",voteResponse.isVoted(),voteResponse.getMessage());

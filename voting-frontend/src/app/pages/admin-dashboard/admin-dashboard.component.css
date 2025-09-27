@@ -27,8 +27,6 @@
   text-align: center;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  cursor: pointer;
-  transition: box-shadow 0.3s;
 }
 
 .stat-card h3, .action-card h3, .data-card h3 {
@@ -42,19 +40,6 @@
   font-weight: bold;
 }
 
-.action-card.active, .action-card:hover {
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-}
-
-.action-card .form-content {
-  display: none;
-}
-
-.action-card.active .form-content {
-  display: block;
-  margin-top: 10px;
-}
-
 .action-card form {
   display: flex;
   flex-direction: column;
@@ -65,48 +50,16 @@
   width: 100%;
 }
 
-.table-container {
-  max-height: 300px;
-  overflow-x: auto;
-  overflow-y: auto;
-}
-
 .data-card table {
   width: 100%;
-  table-layout: fixed;
-}
-
-.data-card th, .data-card td {
-  padding: 8px;
-  text-align: left;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 150px;
-}
-
-.data-card .clickable {
-  cursor: pointer;
-  color: #1976d2;
-}
-
-.data-card .clickable:hover {
-  text-decoration: underline;
-}
-
-.detail-card {
-  margin-top: 10px;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.detail-card p {
-  margin: 5px 0;
 }
 
 .mat-elevation-z8 {
   box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2), 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.data-card mat-table {
+  margin-top: 10px;
 }
 
 button {

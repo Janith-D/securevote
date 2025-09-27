@@ -83,26 +83,30 @@ public class VoterService {
     }
     @Transactional
     public VoteResponseDto castVote(VoteRequestDto voteRequestDto, MultipartFile image) throws Exception {
-        log.info("Casting vote for wallet: {}, candidateId: {}", voteRequestDto.getWalletAddress(), voteRequestDto.getCandidateId());
+        log.info("Casting vote for wallet: {}, candidateId: {}, electionId: {}", voteRequestDto.getWalletAddress(), voteRequestDto.getCandidateId(),voteRequestDto.getElectionId());
         Optional<User> userOpt = userRepo.findByWalletAddress(voteRequestDto.getWalletAddress());
         if (userOpt.isEmpty() || !userOpt.get().getIsFaceRegistered()) {
             log.warn("User check failed for wallet: {}", voteRequestDto.getWalletAddress());
-            return new VoteResponseDto(false, null, "User not registered or face not enrolled");
+            return new VoteResponseDto(false, null, "User not registered or face not enrolled", voteRequestDto.getElectionId());
         }
         User user = userOpt.get();
         // Check role (VOTER or CANDIDATE) only
         if (user.getRole() != User.UserRole.VOTER && user.getRole() != User.UserRole.CANDIDATE) {
             log.warn("Unauthorized role for wallet: {}", voteRequestDto.getWalletAddress());
-            return new VoteResponseDto(false, null, "User not authorized");
+            return new VoteResponseDto(false, null, "User not authorized", voteRequestDto.getElectionId());
         }
-        Long electionId = 1L; // Hardcoded; consider making dynamic
+        Long electionId = voteRequestDto.getElectionId(); // Hardcoded; consider making dynamic
+        if(electionId == null){
+            log.warn("Election ID is required");
+            return new VoteResponseDto(false,null,"Election ID is required", voteRequestDto.getElectionId());
+        }
         if (voteRepo.existsByElectionIdAndVoterId(electionId, user.getId())) {
             log.warn("User already voted for electionId: {}", electionId);
-            return new VoteResponseDto(false, null, "User already voted");
+            return new VoteResponseDto(false, null, "User already voted", voteRequestDto.getElectionId());
         }
         if (image == null || image.isEmpty()) {
             log.warn("Invalid image file");
-            return new VoteResponseDto(false, null, "Image file is required");
+            return new VoteResponseDto(false, null, "Image file is required", voteRequestDto.getElectionId());
         }
         File imageFile = convertMultipartToFile(image);
         try {
@@ -117,13 +121,13 @@ public class VoterService {
                     log.info("Transaction receipt: status={}, hash={}", receipt.isStatusOK(), receipt.getTransactionHash());
                 } catch (Exception e) {
                     log.error("Transaction failed to complete", e);
-                    return new VoteResponseDto(false, null, "Transaction failed: " + e.getMessage());
+                    return new VoteResponseDto(false, null, "Transaction failed: " + e.getMessage(), voteRequestDto.getElectionId());
                 }
                 if (receipt != null && receipt.isStatusOK()) {
                     Optional<Candidate> candidateOpt = candidateService.findById(voteRequestDto.getCandidateId());
                     if (candidateOpt.isEmpty()) {
                         log.warn("Candidate not found for id: {}", voteRequestDto.getCandidateId());
-                        return new VoteResponseDto(false, receipt.getTransactionHash(), "Candidate not found");
+                        return new VoteResponseDto(false, receipt.getTransactionHash(), "Candidate not found", voteRequestDto.getElectionId());
                     }
                     Candidate candidate = candidateOpt.get();
                     Vote vote = new Vote();
@@ -136,11 +140,11 @@ public class VoterService {
                     vote.setBlockHash(receipt.getBlockHash());
                     voteRepo.save(vote);
                     log.info("Vote saved successfully, transaction hash: {}", receipt.getTransactionHash());
-                    return new VoteResponseDto(true, receipt.getTransactionHash(), "Success");
+                    return new VoteResponseDto(true, receipt.getTransactionHash(), "Success", voteRequestDto.getElectionId());
                 }
             }
             log.warn("Verification or transaction failed for wallet: {}", voteRequestDto.getWalletAddress());
-            return new VoteResponseDto(false, null, "Verification or transaction failed");
+            return new VoteResponseDto(false, null, "Verification or transaction failed", voteRequestDto.getElectionId());
         } finally {
             if (imageFile != null) imageFile.delete();
         }
@@ -179,7 +183,8 @@ public class VoterService {
         return votes.stream().map(vote -> new VoteResponseDto(
                 true,
                 vote.getTransactionHash(),
-                "Vote retrieved"
+                "Vote retrieved",
+                vote.getElection().getId()
         )).collect(Collectors.toList());
     }
     public List<UserResponseDto> getAllUsers(){

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpErrorResponse, HttpHeaders } from '@angular/common/http';
+import {HttpClient, HttpErrorResponse, HttpHeaders, HttpResponse} from '@angular/common/http';
 import {catchError, map, Observable, throwError} from 'rxjs';
 import {CandidateRequestDto, ElectionRequestDto, ElectionResponseDto, UserResponseDto} from '../request.dto';
 
@@ -57,11 +57,20 @@ export class ApiService {
     );
   }
 // api.service.ts
-  castVote(walletAddress: string, candidateId: number, file: File): Observable<any> {
+  castVote(walletAddress: string, candidateId: number, file: File, electionId: number): Observable<any> {
     const formData = new FormData();
     formData.append('candidateId', candidateId.toString());
+    formData.append('electionId',electionId.toString());
     formData.append('image', file);
     return this.http.post<any>(`${this.baseUrl}/voting/vote`, formData, {
+      headers: { 'X-Wallet-Address': walletAddress }
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+  //add getVotesByWalletAddress if not present
+  getVotesByWalletAddress(walletAddress:string): Observable<any[]>{
+    return this.http.get<any[]>(`${this.baseUrl}/voting/${walletAddress}`,{
       headers: { 'X-Wallet-Address': walletAddress }
     }).pipe(
       catchError(this.handleError)
@@ -96,8 +105,15 @@ export class ApiService {
   }
   createElection(election: ElectionRequestDto): Observable<any> {
     return this.http.post<any>(`${this.baseUrl}/elections/createElection`,election,{
-      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
+      headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''},
+      observe: 'response'
     }).pipe(
+      map((response: HttpResponse<any>)=>{
+        if(response.status === 201 || response.status === 200) {
+          return response.body;
+        }
+        throw new Error(`Unexpected error : ${response.status}`);
+      }),
       catchError(this.handleError)
     );
   }
@@ -106,7 +122,7 @@ export class ApiService {
       headers:{'X-Wallet-Address': localStorage.getItem('walletAddress') || ''}
     }).pipe(
       map(response => {
-        return Array.isArray(response)? response: (response.election || []);
+        return Array.isArray(response)? response: [];
       }),
       catchError(this.handleError)
     );

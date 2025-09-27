@@ -11,5 +11,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class VoteRequestDto {
     private String walletAddress;
     private Long candidateId;
+    private Long electionId;
     //private MultipartFile image;
 }
