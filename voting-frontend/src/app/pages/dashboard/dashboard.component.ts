@@ -27,6 +27,7 @@ export class DashboardComponent implements OnInit {
   showFaceCapture: boolean = false;
   errorMessage: string = '';
   private voteImage:File | null = null;
+  private electionId: number = 1;
 
   constructor(private apiService: ApiService, private router: Router) {}
 
@@ -127,10 +128,26 @@ export class DashboardComponent implements OnInit {
       this.errorMessage = 'Missing data for voting';
       return;
     }
-    this.apiService.castVote(this.walletAddress,this.selectedCandidateId,this.image!).subscribe({
+    this.apiService.getVotesByWalletAddress(this.walletAddress!).subscribe({
+      next: (votes) => {
+        if(!Array.isArray(votes)){
+          votes = [];
+          console.warn('votes data is not an array,defaulting to empty array : ',votes);
+        }
+        const hasVoted = votes.some((vote:any) => vote.electionId===this.electionId);
+        if(hasVoted){
+          this.errorMessage = 'vote already voted';
+          this.showFaceCapture = false;
+          this.voteImage = null;
+          return;
+        }
+      }
+    })
+    this.apiService.castVote(this.walletAddress,this.selectedCandidateId,this.image!,this.electionId).subscribe({
       next: (res) =>{
         this.errorMessage = 'Vote cast successfully!.';
         this.loadCandidates();
+        this.checkVotingStatus();
         this.showFaceCapture = false;
         this.voteImage = null;
       },
@@ -160,5 +177,21 @@ export class DashboardComponent implements OnInit {
   }
   get image() : File | null {
     return this.voteImage;
+  }
+  //New method to check voting status
+  private checkVotingStatus(): void {
+    if(this.walletAddress){
+      this.apiService.getVotesByWalletAddress(this.walletAddress).subscribe({
+        next: (votes) =>{
+          const hasVoted= votes.some((vote:any) => vote.electionId === this.electionId);
+          if(hasVoted){
+            this.errorMessage = 'You have already voted in this election.';
+          }
+        },
+        error: (err) => {
+          console.error('Failed to check voting status',err);
+        }
+      });
+    }
   }
 }

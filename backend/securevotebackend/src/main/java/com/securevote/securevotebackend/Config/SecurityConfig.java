@@ -49,9 +49,10 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // Apply CORS before security
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/voting/register", "/api/voting/user/**", "/api/voting/verify").permitAll()
-                        .requestMatchers("/api/elections", "/api/candidates/getAllCandidates").permitAll()
+                        .requestMatchers( "/api/candidates/getAllCandidates","/api/voting/{walletAddress}").permitAll()
+                        .requestMatchers("/api/elections/getAllElection").hasRole("ADMIN")
                         .requestMatchers("/api/voting/vote").hasAnyRole("VOTER", "CANDIDATE")
-                        .requestMatchers("/api/voting/results/**","/api/candidates/create","/api/candidates/{id}","/api/elections/createElection","/api/elections/getAllElection").hasRole("ADMIN")
+                        .requestMatchers("/api/voting/results/**","/api/candidates/create","/api/candidates/{id}","/api/elections/createElection").hasRole("ADMIN")
                         .requestMatchers("/api/voting/{walletAddress}").authenticated()
                         .anyRequest().denyAll()
                 )
@@ -77,15 +78,14 @@ public class SecurityConfig {
             String method = request.getMethod();
             log.debug("Processing request: path={}, method={}, headers={}", path, method, request.getHeaderNames().toString());
             if (path.startsWith("/api/voting/register") || path.startsWith("/api/voting/user/") ||
-                    path.startsWith("/api/voting/verify") || path.startsWith("/api/elections") ||
-                    path.startsWith("/api/candidates")) {
+                    path.startsWith("/api/voting/verify") || path.equals("/api/candidates/getAllCandidates")) {
                 log.debug("Skipping RoleFilter for permitAll endpoint: {}, proceeding to chain", path);
-                chain.doFilter(request, response); // Bypass authentication
+                chain.doFilter(request, response);
                 return;
             }
 
             String walletAddress = request.getHeader("X-Wallet-Address");
-            if (walletAddress != null) {
+            if (walletAddress != null && !walletAddress.trim().isEmpty()) {
                 User user = userRepo.findByWalletAddress(walletAddress).orElse(null);
                 if (user != null) {
                     String prefixedRole = "ROLE_" + user.getRole().name();
@@ -96,9 +96,13 @@ public class SecurityConfig {
                     log.info("Authenticated {} with role {}", walletAddress, prefixedRole);
                 } else {
                     log.warn("No user found for wallet: {}", walletAddress);
+                    response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                    return;
                 }
             } else {
                 log.warn("No X-Wallet-Address header provided for protected endpoint: {}", path);
+                response.sendError(HttpServletResponse.SC_FORBIDDEN);
+                return;
             }
             chain.doFilter(request, response);
         }

@@ -27,6 +27,7 @@ public class CandidateService {
     @Autowired
     private ElectionService electionService;
 
+    @Transactional
     public Candidate saveCandidate(Candidate candidate){
         if(candidate.getElection() == null || candidate.getElection().getId() == null){
             throw new IllegalArgumentException("Election is required for candidate");

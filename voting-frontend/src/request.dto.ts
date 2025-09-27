@@ -3,7 +3,7 @@ export interface CandidateRequestDto {
   party: string;
   bio: string;
   imageUrl: string;
-  electionId?: number;
+  election: {id:number};
 }
 export interface ElectionRequestDto{
   title:string;

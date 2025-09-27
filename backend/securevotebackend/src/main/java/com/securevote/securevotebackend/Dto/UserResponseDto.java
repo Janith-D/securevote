@@ -22,18 +22,17 @@ public class UserResponseDto {
     private boolean isFaceRegistered;
     private LocalDateTime createdAt;
 
-    public static UserResponseDto fromUser(User user){
-        if(user == null){
-            return null;
-        }
-        UserResponseDto dto = new UserResponseDto();
-        dto.setId(user.getId());
-        dto.setUsername(user.getUsername());
-        dto.setEmail(user.getEmail());
-        dto.setWalletAddress(user.getWalletAddress());
-        dto.setVerified(user.getIsVerified());
-        dto.setFaceRegistered(user.getIsFaceRegistered());
-        dto.setCreatedAt(user.getCreatedAt());
-        return dto;
+    public UserResponseDto(User user){
+        this.id = user.getId();
+        this.username = user.getUsername();
+        this.walletAddress = user.getWalletAddress();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
+        this.role = user.getRole();
+        this.isVerified = user.getIsVerified();
+        this.isFaceRegistered = user.getIsFaceRegistered();
+        this.createdAt = user.getCreatedAt();
+
     }
 }

@@ -1,5 +1,6 @@
 package com.securevote.securevotebackend.Controller;
 
+import com.securevote.securevotebackend.Dto.ElectionResponseDto;
 import com.securevote.securevotebackend.Entity.Election;
 import com.securevote.securevotebackend.Service.ElectionService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +32,8 @@ public class ElectionController {
                 .orElse(ResponseEntity.notFound().build());
     }
     @GetMapping("/getAllElection")
-    public ResponseEntity<List<Election>> getAllElection(){
-        List<Election> elections = electionService.getAllElection();
+    public ResponseEntity<List<ElectionResponseDto>> getAllElection(){
+        List<ElectionResponseDto> elections = electionService.getAllElection();
         return ResponseEntity.ok(elections);
     }
 }

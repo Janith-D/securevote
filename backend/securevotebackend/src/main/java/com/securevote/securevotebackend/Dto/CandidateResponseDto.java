@@ -20,15 +20,12 @@ public class CandidateResponseDto {
     private Long voteCount;
     private LocalDateTime createdAt;
 
-    public static CandidateResponseDto fromCandidate(Candidate candidate) {
-        return new CandidateResponseDto(
-                candidate.getId(),
-                candidate.getName(),
-                candidate.getBio(),
-                candidate.getImageUrl(),
-                candidate.getUser() != null ? candidate.getUser().getId() : null,
-                candidate.getVotes() != null ? (long) candidate.getVotes().size() : 0L,
-                candidate.getCreatedAt()
-        );
-    }
+ public CandidateResponseDto( Candidate candidate){
+     this.id = candidate.getId();
+     this.name = candidate.getName();
+     this.bio = candidate.getBio();
+     this.imageUrl = candidate.getImageUrl();
+     this.createdAt = candidate.getCreatedAt();
+
+ }
 }
